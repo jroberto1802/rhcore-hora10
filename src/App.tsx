@@ -8,6 +8,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import PesquisaPublica from "./pages/PesquisaPublica";
+import FeedbackPublicoCiclo from "./pages/FeedbackPublicoCiclo";
+import AutoavaliacaoCiclo from "./pages/AutoavaliacaoCiclo";
 import { THEME_STORAGE_KEY, DEFAULT_THEME } from "./constants/theme";
 
 const queryClient = new QueryClient({
@@ -34,6 +37,9 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <Routes>
+              <Route path="/pesquisa/clima" element={<PesquisaPublica />} />
+              <Route path="/feedback/ciclo/:token" element={<FeedbackPublicoCiclo />} />
+              <Route path="/autoavaliacao/ciclo/:token" element={<AutoavaliacaoCiclo />} />
               <Route path="/*" element={<Index />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

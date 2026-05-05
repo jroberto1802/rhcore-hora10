@@ -27,6 +27,11 @@ import BancoTalentos from './BancoTalentos';
 import CandidatoDetalhes from './CandidatoDetalhes';
 import GerenciarPermissoes from './GerenciarPermissoes';
 import { OcorrenciasGerais } from './OcorrenciasGerais';
+import { Campanhas } from './clima/Campanhas';
+import { CampanhaDetalhes } from './clima/CampanhaDetalhes';
+import { CiclosGente } from './ciclo-gente/CiclosGente';
+import { CicloDetalhes } from './ciclo-gente/CicloDetalhes';
+import { ParticipanteFluxo } from './ciclo-gente/ParticipanteFluxo';
 import { type Empresa } from '@/hooks/useUserEmpresas';
 
 const Index = () => {
@@ -88,6 +93,10 @@ const Index = () => {
         return 'Banco de Talentos';
       case '/ocorrencias-gerais':
         return 'Ocorrências Gerais';
+      case '/clima/pesquisas':
+        return 'Clima Organizacional';
+      case '/ciclo-gente':
+        return 'Ciclo de Gente';
       case '/configuracoes':
         return 'Configurações';
       case '/configuracoes/permissoes':
@@ -296,6 +305,50 @@ const Index = () => {
                     currentGroupId={currentGroupId}
                   />
                 }
+              />
+              <Route
+                path="/clima/pesquisas"
+                element={
+                  <Campanhas
+                    currentEmpresa={selectedEmpresa}
+                    isGroupView={isGroupView}
+                    currentGroupId={currentGroupId}
+                  />
+                }
+              />
+              <Route
+                path="/clima/pesquisas/:id"
+                element={
+                  <CampanhaDetalhes
+                    currentEmpresa={selectedEmpresa}
+                    isGroupView={isGroupView}
+                    currentGroupId={currentGroupId}
+                  />
+                }
+              />
+              <Route
+                path="/ciclo-gente"
+                element={
+                  <CiclosGente
+                    currentEmpresa={selectedEmpresa}
+                    isGroupView={isGroupView}
+                    currentGroupId={currentGroupId}
+                  />
+                }
+              />
+              <Route
+                path="/ciclo-gente/:id"
+                element={
+                  <CicloDetalhes
+                    currentEmpresa={selectedEmpresa}
+                    isGroupView={isGroupView}
+                    currentGroupId={currentGroupId}
+                  />
+                }
+              />
+              <Route
+                path="/ciclo-gente/:cicloId/participante/:participanteId"
+                element={<ParticipanteFluxo currentEmpresa={selectedEmpresa} />}
               />
               <Route path="/configuracoes" element={<Configuracoes currentEmpresa={selectedEmpresa} />} />
               <Route

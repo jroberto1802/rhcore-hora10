@@ -11,6 +11,8 @@ import {
   Shield,
   Moon,
   Sun,
+  Wind,
+  Users2,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import rhcoreLogo from "@/assets/rhcore-logo.png";
@@ -105,6 +107,22 @@ const menuItemsConfig = [
       },
     ],
   },
+  {
+    title: "Clima Organizacional",
+    icon: Wind,
+    permissions: ["menu.clima"],
+    submenu: [
+      { title: "Pesquisas", url: "/clima/pesquisas", permissions: ["menu.clima"] },
+    ],
+  },
+  {
+    title: "Ciclo de Gente",
+    icon: Users2,
+    permissions: ["menu.ciclo_gente"],
+    submenu: [
+      { title: "Ciclos", url: "/ciclo-gente", permissions: ["menu.ciclo_gente"] },
+    ],
+  },
   { title: "Ocorrências", url: "/ocorrencias-gerais", icon: FileText, permissions: ["menu.ocorrencias_gerais"] },
   { title: "Configurações", url: "/configuracoes", icon: Settings, permissions: ["menu.configuracoes"] },
   { title: "Permissões", url: "/configuracoes/permissoes", icon: Shield, permissions: ["menu.permissoes"] },
@@ -141,6 +159,8 @@ export function AppSidebar({
     Funcionários: false,
     Recrutamento: false,
     Relatórios: false,
+    "Clima Organizacional": false,
+    "Ciclo de Gente": false,
   });
 
   const [subsectionOpen, setSubsectionOpen] = useState<{ [key: string]: boolean }>({
