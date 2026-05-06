@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
-  Plus, Upload, Copy, Send, Download, Search, CheckCircle, Clock, X,
+  Plus, Upload, Copy, Send, Download, Search, CheckCircle, Clock, X, AlertTriangle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -113,21 +113,35 @@ export function ParticipacaoTab({ campanha }: Props) {
     onError: (e: any) => toast.error(e.message || "Erro ao adicionar participante"),
   });
 
+  const isRascunho = campanha.status === "rascunho";
+
+  const copiarLinkComAviso = (link: string, nome?: string) => {
+    if (isRascunho) {
+      toast.warning("Campanha ainda em rascunho — publique antes de enviar os links, senão o funcionário verá 'Link inválido'.");
+    }
+    navigator.clipboard.writeText(link);
+    toast.success(nome ? `Link copiado: ${nome}` : "Link copiado");
+  };
+
   const reenviarMutation = useMutation({
     mutationFn: async (participante: any) => {
-      const link = `${BASE_URL}/pesquisa/clima?token=${participante.token}`;
-      await navigator.clipboard.writeText(link);
-      toast.success(`Link copiado: ${participante.nome || "participante"}`);
+      copiarLinkComAviso(
+        `${BASE_URL}/pesquisa/clima?token=${participante.token}`,
+        participante.nome || "participante"
+      );
     },
   });
 
   const copiarLinkTodos = () => {
-    const links = participantes
-      .filter((p: any) => p.status === "pendente")
+    const pendentes = participantes.filter((p: any) => p.status === "pendente");
+    const links = pendentes
       .map((p: any) => `${p.nome || "—"}: ${BASE_URL}/pesquisa/clima?token=${p.token}`)
       .join("\n");
+    if (isRascunho) {
+      toast.warning("Campanha ainda em rascunho — publique antes de enviar os links, senão os funcionários verão 'Link inválido'.");
+    }
     navigator.clipboard.writeText(links);
-    toast.success(`${participantes.filter((p: any) => p.status === "pendente").length} links copiados`);
+    toast.success(`${pendentes.length} links copiados`);
   };
 
   const exportarCSV = () => {
@@ -197,6 +211,20 @@ export function ParticipacaoTab({ campanha }: Props) {
 
   return (
     <div className="space-y-5">
+      {/* Aviso de campanha não publicada */}
+      {isRascunho && (
+        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">Campanha não publicada</p>
+            <p className="text-sm text-amber-700 mt-0.5">
+              Os links gerados não funcionarão até que a campanha seja publicada. Vá até a aba{" "}
+              <strong>Visão Geral</strong> e clique em <strong>Publicar campanha</strong> antes de enviar os links aos colaboradores.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Resumo */}
       <div className="grid grid-cols-3 gap-4">
         {[
@@ -314,11 +342,7 @@ export function ParticipacaoTab({ campanha }: Props) {
                         size="icon"
                         className="h-8 w-8"
                         title="Copiar link"
-                        onClick={() => {
-                          const link = `${BASE_URL}/pesquisa/clima?token=${p.token}`;
-                          navigator.clipboard.writeText(link);
-                          toast.success("Link copiado");
-                        }}
+                        onClick={() => copiarLinkComAviso(`${BASE_URL}/pesquisa/clima?token=${p.token}`)}
                       >
                         <Copy className="h-3.5 w-3.5" />
                       </Button>

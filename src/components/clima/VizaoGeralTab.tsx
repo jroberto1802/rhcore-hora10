@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,18 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 export function VizaoGeralTab({ campanha, participacaoStats }: Props) {
   const queryClient = useQueryClient();
   const db = supabase as any;
+
+  const { data: numPerguntas = 0 } = useQuery({
+    queryKey: ["clima_perguntas_count", campanha.id],
+    queryFn: async () => {
+      const { count } = await db
+        .from("clima_perguntas")
+        .select("id", { count: "exact", head: true })
+        .eq("campanha_id", campanha.id)
+        .eq("ativo", true);
+      return count || 0;
+    },
+  });
 
   const pct = participacaoStats.total > 0
     ? Math.round((participacaoStats.respondidos / participacaoStats.total) * 100)
@@ -87,13 +99,25 @@ export function VizaoGeralTab({ campanha, participacaoStats }: Props) {
   return (
     <div className="space-y-6">
       {/* Status Banner */}
-      {campanha.status === "rascunho" && (
+      {campanha.status === "rascunho" && numPerguntas === 0 && (
+        <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-red-800">Nenhuma pergunta configurada</p>
+            <p className="text-xs text-red-700 mt-0.5">
+              Vá até a aba <strong>Configurações</strong>, crie os pilares e adicione as perguntas antes de publicar. Sem perguntas, os colaboradores verão uma tela em branco.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {campanha.status === "rascunho" && numPerguntas > 0 && (
         <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
           <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-amber-800">Campanha em rascunho</p>
             <p className="text-xs text-amber-700 mt-0.5">
-              Configure as perguntas, importe os participantes e publique quando estiver pronto.
+              {numPerguntas} pergunta{numPerguntas !== 1 ? "s" : ""} configurada{numPerguntas !== 1 ? "s" : ""}. Importe os participantes e publique quando estiver pronto.
             </p>
           </div>
           <Button size="sm" onClick={() => publicarMutation.mutate()} disabled={publicarMutation.isPending}>
@@ -236,7 +260,8 @@ export function VizaoGeralTab({ campanha, participacaoStats }: Props) {
                 <Button
                   className="w-full"
                   onClick={() => publicarMutation.mutate()}
-                  disabled={publicarMutation.isPending}
+                  disabled={publicarMutation.isPending || numPerguntas === 0}
+                  title={numPerguntas === 0 ? "Configure as perguntas antes de publicar" : undefined}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Publicar campanha

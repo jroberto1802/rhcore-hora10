@@ -58,7 +58,7 @@ export default function PesquisaPublica() {
   });
 
   // Buscar perguntas da campanha
-  const { data: perguntas = [] } = useQuery({
+  const { data: perguntas = [], isLoading: loadingPerguntas } = useQuery({
     queryKey: ["perguntas_publicas", participante?.campanha_id],
     queryFn: async () => {
       const { data, error } = await db
@@ -321,7 +321,32 @@ export default function PesquisaPublica() {
     );
   }
 
-  // Tela de perguntas
+  // Tela de perguntas — sem perguntas cadastradas
+  if (etapa === "perguntas" && !loadingPerguntas && totalGrupos === 0) {
+    return (
+      <TelaCentral>
+        <div className="text-center space-y-4">
+          <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle className="h-7 w-7 text-amber-600" />
+          </div>
+          <h2 className="text-lg font-bold">Pesquisa sem perguntas</h2>
+          <p className="text-muted-foreground text-sm">
+            Esta campanha ainda não possui perguntas configuradas. Entre em contato com o RH da sua empresa.
+          </p>
+        </div>
+      </TelaCentral>
+    );
+  }
+
+  // Tela de perguntas — carregando
+  if (etapa === "perguntas" && loadingPerguntas) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
   const grupo = grupos[grupoAtual];
   if (!grupo) return null;
 
